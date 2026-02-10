@@ -24,37 +24,70 @@ document.addEventListener("DOMContentLoaded", () => {
         const spotsLeft = details.max_participants - details.participants.length;
 
 
-        // Create participants list HTML
-        let participantsHTML = '';
+        // Create activity content elements safely without using innerHTML
+        const titleEl = document.createElement("h4");
+        titleEl.textContent = name;
+
+        const descriptionEl = document.createElement("p");
+        descriptionEl.textContent = details.description;
+
+        const scheduleEl = document.createElement("p");
+        const scheduleStrong = document.createElement("strong");
+        scheduleStrong.textContent = "Schedule:";
+        scheduleEl.appendChild(scheduleStrong);
+        scheduleEl.appendChild(document.createTextNode(" " + details.schedule));
+
+        const availabilityEl = document.createElement("p");
+        const availabilityStrong = document.createElement("strong");
+        availabilityStrong.textContent = "Availability:";
+        availabilityEl.appendChild(availabilityStrong);
+        availabilityEl.appendChild(document.createTextNode(" " + spotsLeft + " spots left"));
+
+        // Create participants section
+        const participantsSection = document.createElement("div");
+        participantsSection.className = "participants-section";
+
         if (details.participants && details.participants.length > 0) {
-          participantsHTML = `
-            <div class="participants-section">
-              <strong>Participants:</strong>
-              <ul class="participants-list">
-                ${details.participants.map(p => `
-                  <li>
-                    <span class="participant-email">${p}</span>
-                    <button class="delete-btn" data-activity="${name}" data-email="${p}" title="Unregister ${p}">✕</button>
-                  </li>
-                `).join('')}
-              </ul>
-            </div>
-          `;
+          const participantsLabel = document.createElement("strong");
+          participantsLabel.textContent = "Participants:";
+          participantsSection.appendChild(participantsLabel);
+
+          const participantsList = document.createElement("ul");
+          participantsList.className = "participants-list";
+
+          details.participants.forEach(p => {
+            const li = document.createElement("li");
+
+            const emailSpan = document.createElement("span");
+            emailSpan.className = "participant-email";
+            emailSpan.textContent = p;
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-btn";
+            deleteBtn.dataset.activity = name;
+            deleteBtn.dataset.email = p;
+            deleteBtn.title = "Unregister " + p;
+            deleteBtn.textContent = "✕";
+
+            li.appendChild(emailSpan);
+            li.appendChild(deleteBtn);
+            participantsList.appendChild(li);
+          });
+
+          participantsSection.appendChild(participantsList);
         } else {
-          participantsHTML = `
-            <div class="participants-section empty">
-              <em>No participants yet</em>
-            </div>
-          `;
+          participantsSection.classList.add("empty");
+          const noParticipantsEm = document.createElement("em");
+          noParticipantsEm.textContent = "No participants yet";
+          participantsSection.appendChild(noParticipantsEm);
         }
 
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-          ${participantsHTML}
-        `;
+        // Assemble card
+        activityCard.appendChild(titleEl);
+        activityCard.appendChild(descriptionEl);
+        activityCard.appendChild(scheduleEl);
+        activityCard.appendChild(availabilityEl);
+        activityCard.appendChild(participantsSection);
 
         activitiesList.appendChild(activityCard);
 
