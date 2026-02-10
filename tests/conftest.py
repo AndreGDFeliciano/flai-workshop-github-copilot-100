@@ -1,4 +1,5 @@
 """Pytest configuration and fixtures for testing"""
+import copy
 import pytest
 from fastapi.testclient import TestClient
 from src.app import app, activities
@@ -76,10 +77,10 @@ def reset_activities():
     
     # Reset to original state before each test
     activities.clear()
-    activities.update(original_activities)
+    activities.update(copy.deepcopy(original_activities))
     
     yield
     
     # Reset after test as well
     activities.clear()
-    activities.update(original_activities)
+    activities.update(copy.deepcopy(original_activities))
